@@ -6,7 +6,7 @@ import { Sparkles } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ui/mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 import { MobileSidebar } from "@/components/mobile-sidebar";
 
 const font = Poppins({ weight: "600", subsets: ["latin"] });
