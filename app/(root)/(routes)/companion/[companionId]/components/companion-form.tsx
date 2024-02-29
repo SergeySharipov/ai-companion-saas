@@ -8,14 +8,28 @@ import { useRouter } from "next/navigation";
 import { Wand2 } from "lucide-react";
 import { Category, Companion } from "@prisma/client";
 
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/image-upload";
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+  SelectTrigger,
+} from "@/components/ui/select";
 
 const PREAMBLE = `You are a fictional character whose name is Elon. You are a visionary entrepreneur and inventor. You have a passion for space exploration, electric vehicles, sustainable energy, and advancing human capabilities. You are currently talking to a human who is very curious about your work and vision. You are ambitious and forward-thinking, with a touch of wit. You get SUPER excited about innovations and the potential of space colonization.
 `;
@@ -41,13 +55,13 @@ const formSchema = z.object({
     message: "Description is required.",
   }),
   instructions: z.string().min(200, {
-    message: "Instructions require at least 200 characters."
+    message: "Instructions require at least 200 characters.",
   }),
   seed: z.string().min(200, {
-    message: "Seed requires at least 200 characters."
+    message: "Seed requires at least 200 characters.",
   }),
   src: z.string().min(1, {
-    message: "Image is required."
+    message: "Image is required.",
   }),
   categoryId: z.string().min(1, {
     message: "Category is required",
@@ -57,11 +71,11 @@ const formSchema = z.object({
 interface CompanionFormProps {
   categories: Category[];
   initialData: Companion | null;
-};
+}
 
 export const CompanionForm = ({
   categories,
-  initialData
+  initialData,
 }: CompanionFormProps) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -104,11 +118,14 @@ export const CompanionForm = ({
     }
   };
 
-  return ( 
-    <div className="h-full p-4 space-y-2 max-w-3xl mx-auto">
+  return (
+    <div className="mx-auto h-full max-w-3xl space-y-2 p-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-10">
-          <div className="space-y-2 w-full col-span-2">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 pb-10"
+        >
+          <div className="col-span-2 w-full space-y-2">
             <div>
               <h3 className="text-lg font-medium">General Information</h3>
               <p className="text-sm text-muted-foreground">
@@ -120,15 +137,19 @@ export const CompanionForm = ({
           <FormField
             name="src"
             render={({ field }) => (
-              <FormItem className="flex flex-col items-center justify-center space-y-4 col-span-2">
+              <FormItem className="col-span-2 flex flex-col items-center justify-center space-y-4">
                 <FormControl>
-                  <ImageUpload disabled={isLoading} onChange={field.onChange} value={field.value} />
+                  <ImageUpload
+                    disabled={isLoading}
+                    onChange={field.onChange}
+                    value={field.value}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <FormField
               name="name"
               control={form.control}
@@ -136,7 +157,11 @@ export const CompanionForm = ({
                 <FormItem className="col-span-2 md:col-span-1">
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input disabled={isLoading} placeholder="Elon Musk" {...field} />
+                    <Input
+                      disabled={isLoading}
+                      placeholder="Elon Musk"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     This is how your AI Companion will be named.
@@ -152,7 +177,11 @@ export const CompanionForm = ({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input disabled={isLoading} placeholder="CEO & Founder of Tesla, SpaceX" {...field} />
+                    <Input
+                      disabled={isLoading}
+                      placeholder="CEO & Founder of Tesla, SpaceX"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     Short description for your AI Companion
@@ -167,15 +196,25 @@ export const CompanionForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select disabled={isLoading} onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                  <Select
+                    disabled={isLoading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger className="bg-background">
-                        <SelectValue defaultValue={field.value} placeholder="Select a category" />
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Select a category"
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -187,7 +226,7 @@ export const CompanionForm = ({
               )}
             />
           </div>
-          <div className="space-y-2 w-full">
+          <div className="w-full space-y-2">
             <div>
               <h3 className="text-lg font-medium">Configuration</h3>
               <p className="text-sm text-muted-foreground">
@@ -203,10 +242,17 @@ export const CompanionForm = ({
               <FormItem>
                 <FormLabel>Instructions</FormLabel>
                 <FormControl>
-                  <Textarea disabled={isLoading} rows={7} className="bg-background resize-none" placeholder={PREAMBLE} {...field} />
+                  <Textarea
+                    disabled={isLoading}
+                    rows={7}
+                    className="resize-none bg-background"
+                    placeholder={PREAMBLE}
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
-                  Describe in detail your companion&apos;s backstory and relevant details.
+                  Describe in detail your companion&apos;s backstory and
+                  relevant details.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -219,23 +265,30 @@ export const CompanionForm = ({
               <FormItem>
                 <FormLabel>Example Conversation</FormLabel>
                 <FormControl>
-                  <Textarea disabled={isLoading} rows={7} className="bg-background resize-none" placeholder={SEED_CHAT} {...field} />
+                  <Textarea
+                    disabled={isLoading}
+                    rows={7}
+                    className="resize-none bg-background"
+                    placeholder={SEED_CHAT}
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
-                  Write couple of examples of a human chatting with your AI companion, write expected answers.
+                  Write couple of examples of a human chatting with your AI
+                  companion, write expected answers.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="w-full flex justify-center">
+          <div className="flex w-full justify-center">
             <Button size="lg" disabled={isLoading}>
               {initialData ? "Edit your companion" : "Create your companion"}
-              <Wand2 className="w-4 h-4 ml-2" />
+              <Wand2 className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </form>
       </Form>
     </div>
-   );
+  );
 };

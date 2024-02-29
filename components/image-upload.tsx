@@ -29,23 +29,26 @@ export const ImageUpload = ({
   }
 
   return (
-    <div className="space-y-4 w-full flex flex-col justify-center items-center">
-      
-      <CldUploadButton options={{ maxFiles: 1 }} onUpload={(result: any) => onChange(result.info.secure_url)} uploadPreset="t4drjppf">
-        <div 
+    <div className="flex w-full flex-col items-center justify-center space-y-4">
+      <CldUploadButton
+        options={{ maxFiles: 1 }}
+        onSuccess={(result: any) => onChange(result.info.secure_url)}
+        uploadPreset="companion"
+      >
+        <div
           className="
-            p-4 
-            border-4 
-            border-dashed
-            border-primary/10 
-            rounded-lg 
-            hover:opacity-75 
-            transition 
             flex 
             flex-col 
+            items-center
+            justify-center 
             space-y-2 
-            items-center 
-            justify-center
+            rounded-lg 
+            border-4 
+            border-dashed 
+            border-primary/10 
+            p-4 
+            transition 
+            hover:opacity-75
           "
         >
           <div className="relative h-40 w-40">
