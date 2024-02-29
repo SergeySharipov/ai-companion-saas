@@ -1,14 +1,36 @@
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider        = "mysql"
+  url             = env("DATABASE_URL")
+  relationMode    = "prisma"
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 model Category {
-  id String @id @default(uuid())
-  name String
+  id              String @id @default(uuid())
+  name            String
+  companions      Companion[]
+}
+
+model Companion {
+  id              String @id @default(uuid())
+  userId          String
+  userName        String
+  src             String
+  name            String @db.Text
+  description     String
+  instructions    String @db.Text
+  seed            String @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category        Category @relation(fields: [categoryId], references: [id])
+  categoryId      String
+
+  @@index([categoryId])
+  @@fulltext([name])
 }
