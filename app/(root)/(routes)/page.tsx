@@ -15,7 +15,8 @@ const Page = async ({ searchParams }: PageProps) => {
     where: {
       categoryId: searchParams.categoryId,
       name: {
-        search: searchParams.name,
+        contains: searchParams.name,
+        mode:"insensitive"
       },
     },
     orderBy: {
