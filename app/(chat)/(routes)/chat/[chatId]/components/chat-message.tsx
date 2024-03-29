@@ -14,6 +14,7 @@ export interface ChatMessageProps {
   content?: string;
   isLoading?: boolean;
   src?: string;
+  id?: string;
 }
 
 export const ChatMessage = ({

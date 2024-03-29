@@ -73,10 +73,8 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
       </div>
       {user?.id === companion.userId && (
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="secondary" size="icon">
-              <MoreVertical />
-            </Button>
+          <DropdownMenuTrigger className="p-4 outline-none">
+            <MoreVertical />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
