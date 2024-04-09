@@ -1,19 +1,19 @@
 import dotenv from "dotenv";
 import { StreamingTextResponse, LangChainStream } from "ai";
 import { currentUser } from "@clerk/nextjs";
-import { Replicate } from "langchain/llms/replicate";
-import { CallbackManager } from "langchain/callbacks";
 import { NextResponse } from "next/server";
 
 import { MemoryManager } from "@/lib/memory";
 import { rateLimit } from "@/lib/rate-limit";
 import prismadb from "@/lib/prismadb";
+import { ChatOpenAI } from "@langchain/openai";
+import { CallbackManager } from "@langchain/core/callbacks/manager";
 
 dotenv.config({ path: `.env` });
 
 export async function POST(
   request: Request,
-  { params }: { params: { chatId: string } }
+  { params }: { params: { chatId: string } },
 ) {
   try {
     const { prompt } = await request.json();
@@ -32,7 +32,7 @@ export async function POST(
 
     const companion = await prismadb.companion.update({
       where: {
-        id: params.chatId
+        id: params.chatId,
       },
       data: {
         messages: {
@@ -42,7 +42,7 @@ export async function POST(
             userId: user.id,
           },
         },
-      }
+      },
     });
 
     if (!companion) {
@@ -55,7 +55,7 @@ export async function POST(
     const companionKey = {
       companionName: name!,
       userId: user.id,
-      modelName: "llama2-13b",
+      modelName: "gpt-3.5-turbo",
     };
     const memoryManager = await MemoryManager.getInstance();
 
@@ -67,54 +67,55 @@ export async function POST(
 
     // Query Pinecone
 
-    const recentChatHistory = await memoryManager.readLatestHistory(companionKey);
+    const recentChatHistory =
+      await memoryManager.readLatestHistory(companionKey);
 
     // Right now the preamble is included in the similarity search, but that
     // shouldn't be an issue
 
     const similarDocs = await memoryManager.vectorSearch(
       recentChatHistory,
-      companion_file_name
+      companion_file_name,
     );
+
+    console.log("recentChatHistory", recentChatHistory, similarDocs);
 
     let relevantHistory = "";
     if (!!similarDocs && similarDocs.length !== 0) {
       relevantHistory = similarDocs.map((doc) => doc.pageContent).join("\n");
     }
     const { handlers } = LangChainStream();
-    // Call Replicate for inference
-    const model = new Replicate({
-      model:
-        "a16z-infra/llama-2-13b-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5",
-      input: {
-        max_length: 2048,
-      },
-      apiKey: process.env.REPLICATE_API_TOKEN,
+
+    const openai = new ChatOpenAI({
+      openAIApiKey: process.env.OPENAI_API_KEY,
+      modelName: "gpt-3.5-turbo",
       callbackManager: CallbackManager.fromHandlers(handlers),
     });
 
     // Turn verbose on for debugging
-    model.verbose = true;
+    openai.verbose = true;
 
-    const resp = String(
-      await model
-        .call(
-          `
-        ONLY generate plain sentences without prefix of who is speaking. DO NOT use ${companion.name}: prefix. 
-
+    const resp = await openai
+      .invoke(
+        `
         ${companion.instructions}
 
         Below are relevant details about ${companion.name}'s past and the conversation you are in.
         ${relevantHistory}
 
+        ${recentChatHistory}\n${companion.name}:`,
+      )
+      .catch(console.error);
 
-        ${recentChatHistory}\n${companion.name}:`
-        )
-        .catch(console.error)
-    );
+    const content = resp?.content as string;
 
-    const cleaned = resp.replaceAll(",", "");
-    const chunks = cleaned.split("\n");
+    console.log("content", content);
+
+    if (!content) {
+      return new NextResponse("content not found", { status: 404 });
+    }
+
+    const chunks = content.split("\n");
     const response = chunks[0];
 
     await memoryManager.writeToHistory("" + response.trim(), companionKey);
@@ -128,7 +129,7 @@ export async function POST(
 
       await prismadb.companion.update({
         where: {
-          id: params.chatId
+          id: params.chatId,
         },
         data: {
           messages: {
@@ -138,7 +139,7 @@ export async function POST(
               userId: user.id,
             },
           },
-        }
+        },
       });
     }
 
@@ -146,4 +147,4 @@ export async function POST(
   } catch (error) {
     return new NextResponse("Internal Error", { status: 500 });
   }
-};
+}

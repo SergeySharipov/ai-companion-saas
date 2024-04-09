@@ -1,7 +1,7 @@
 import { Redis } from "@upstash/redis";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PineconeClient } from "@pinecone-database/pinecone";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { Pinecone } from "@pinecone-database/pinecone";
+import { PineconeStore } from "@langchain/pinecone";
 
 export type CompanionKey = {
   companionName: string;
@@ -12,29 +12,21 @@ export type CompanionKey = {
 export class MemoryManager {
   private static instance: MemoryManager;
   private history: Redis;
-  private vectorDBClient: PineconeClient;
+  private vectorDBClient: Pinecone;
 
   public constructor() {
     this.history = Redis.fromEnv();
-    this.vectorDBClient = new PineconeClient();
-  }
-
-  public async init() {
-    if (this.vectorDBClient instanceof PineconeClient) {
-      await this.vectorDBClient.init({
-        apiKey: process.env.PINECONE_API_KEY!,
-        environment: process.env.PINECONE_ENV!,
-      });
-    }
+    this.vectorDBClient = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,});
   }
 
   public async vectorSearch(
     recentChatHistory: string,
     companionFileName: string,
   ) {
-    const pineconeClient = <PineconeClient>this.vectorDBClient;
+    const Pinecone = <Pinecone>this.vectorDBClient;
 
-    const pineconeIndex = pineconeClient.Index(
+    const pineconeIndex = Pinecone.Index(
       process.env.PINECONE_INDEX! || "",
     );
 
@@ -54,7 +46,6 @@ export class MemoryManager {
   public static async getInstance(): Promise<MemoryManager> {
     if (!MemoryManager.instance) {
       MemoryManager.instance = new MemoryManager();
-      await MemoryManager.instance.init();
     }
     return MemoryManager.instance;
   }

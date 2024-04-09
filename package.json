@@ -11,7 +11,9 @@
   "dependencies": {
     "@clerk/nextjs": "^4.29.7",
     "@hookform/resolvers": "^3.3.4",
-    "@pinecone-database/pinecone": "^0.1.6",
+    "@langchain/openai": "0.0.26",
+    "@langchain/pinecone": "0.0.4",
+    "@pinecone-database/pinecone": "2.2.0",
     "@prisma/client": "^5.11.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -28,7 +30,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "dotenv": "^16.4.5",
-    "langchain": "^0.1.30",
+    "langchain": "0.1.31",
     "lucide-react": "^0.341.0",
     "next": "14.1.0",
     "next-cloudinary": "^6.0.1",
@@ -40,7 +42,6 @@
     "react-dom": "^18",
     "react-hook-form": "^7.50.1",
     "react-spinners": "^0.13.8",
-    "replicate": "^0.18.1",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
