@@ -100,6 +100,7 @@ export async function POST(
         `
         ${companion.instructions}
 
+        Try to give responses that are straight to the point. 
         Below are relevant details about ${companion.name}'s past and the conversation you are in.
         ${relevantHistory}
 
