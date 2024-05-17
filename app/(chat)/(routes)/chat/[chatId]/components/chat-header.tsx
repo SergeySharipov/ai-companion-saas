@@ -51,6 +51,21 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
     }
   };
 
+  const onDeleteHistory = async () => {
+    try {
+      await axios.delete(`/api/companion/${companion.id}/history`);
+
+      toast({ description: "Success." });
+
+      router.refresh();
+    } catch (error) {
+      toast({
+        description: "Something went wrong.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex w-full items-center justify-between border-b border-primary/10 pb-4">
       <div className="flex items-center gap-x-2">
@@ -82,6 +97,10 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
             >
               <Edit className="mr-2 h-4 w-4" />
               Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onDeleteHistory}>
+              <Trash className="mr-2 h-4 w-4" />
+              Delete History
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onDelete}>
               <Trash className="mr-2 h-4 w-4" />

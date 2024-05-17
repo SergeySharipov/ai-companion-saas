@@ -4,7 +4,7 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { PineconeStore } from "@langchain/pinecone";
 
 export type CompanionKey = {
-  companionName: string;
+  companionId: string;
   modelName: string;
   userId: string;
 };
@@ -51,7 +51,7 @@ export class MemoryManager {
   }
 
   private generateRedisCompanionKey(companionKey: CompanionKey): string {
-    return `${companionKey.companionName}-${companionKey.modelName}-${companionKey.userId}`;
+    return `${companionKey.companionId}-${companionKey.modelName}-${companionKey.userId}`;
   }
 
   public async writeToHistory(text: string, companionKey: CompanionKey) {
@@ -67,6 +67,17 @@ export class MemoryManager {
     });
 
     return result;
+  }
+
+  public async clearHistory(companionKey: CompanionKey) {
+    if (!companionKey || typeof companionKey.userId == "undefined") {
+      console.log("Companion key set incorrectly");
+      return "";
+    }
+
+    const key = this.generateRedisCompanionKey(companionKey);
+
+    this.history.del(key);
   }
 
   public async readLatestHistory(companionKey: CompanionKey): Promise<string> {

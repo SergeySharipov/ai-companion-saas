@@ -49,11 +49,10 @@ export async function POST(
       return new NextResponse("Companion not found", { status: 404 });
     }
 
-    const name = companion.id;
-    const companion_file_name = name + ".txt";
+    const companion_file_name = companion.id! + ".txt";
 
     const companionKey = {
-      companionName: name!,
+      companionId: companion.id,
       userId: user.id,
       modelName: "gpt-3.5-turbo",
     };
@@ -110,39 +109,31 @@ export async function POST(
 
     const content = resp?.content as string;
 
-    console.log("content", content);
-
-    if (!content) {
+    if (!content && content?.length < 1) {
       return new NextResponse("content not found", { status: 404 });
     }
 
-    const chunks = content.split("\n");
-    const response = chunks[0];
-
-    await memoryManager.writeToHistory("" + response.trim(), companionKey);
     var Readable = require("stream").Readable;
-
     let s = new Readable();
-    s.push(response);
+    s.push(content);
     s.push(null);
-    if (response !== undefined && response.length > 1) {
-      memoryManager.writeToHistory("" + response.trim(), companionKey);
 
-      await prismadb.companion.update({
-        where: {
-          id: params.chatId,
-        },
-        data: {
-          messages: {
-            create: {
-              content: response.trim(),
-              role: "system",
-              userId: user.id,
-            },
+    memoryManager.writeToHistory("" + content, companionKey);
+
+    await prismadb.companion.update({
+      where: {
+        id: params.chatId,
+      },
+      data: {
+        messages: {
+          create: {
+            content: content,
+            role: "system",
+            userId: user.id,
           },
         },
-      });
-    }
+      },
+    });
 
     return new StreamingTextResponse(s);
   } catch (error) {
