@@ -4,7 +4,7 @@ import { useCompletion } from "ai/react";
 import { Companion, Message } from "@prisma/client";
 import { ChatHeader } from "./chat-header";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { ChatForm } from "./chat-form";
 import { ChatMessages } from "./chat-messages";
 import { ChatMessageProps } from "./chat-message";
@@ -22,16 +22,17 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
   const router = useRouter();
   const [messages, setMessages] = useState<any[]>(companion.messages);
 
+  useEffect(() => {
+    console.log("companion.messages", companion.messages);
+    
+    setMessages(companion.messages);
+  }, [companion, setMessages]);
+
   const { input, isLoading, handleInputChange, handleSubmit, setInput } =
     useCompletion({
       api: `/api/chat/${companion.id}`,
       onFinish(prompt, completion) {
-        const systemMessage: ChatMessageProps = {
-          role: "system",
-          content: completion,
-        };
 
-        setMessages((current) => [...current, systemMessage]);
         setInput("");
 
         router.refresh();
@@ -42,9 +43,14 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
     const userMessage: ChatMessageProps = {
       role: "user",
       content: input,
+      id: "user" + new Date().toISOString(),
     };
-
-    setMessages((current) => [...current, userMessage]);
+    const systemMessage: ChatMessageProps = {
+      role: "system",
+      isLoading: true,
+      id: "system" + new Date().toISOString(),
+    };
+    setMessages((current) => [...current, userMessage, systemMessage]);
 
     handleSubmit(e);
   };

@@ -33,7 +33,7 @@ export const ChatMessages = ({
 
   useEffect(() => {
     scrollRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages]);
 
   return (
     <div className="flex-1 overflow-y-auto pr-4">
@@ -49,9 +49,9 @@ export const ChatMessages = ({
           src={companion.src}
           content={message.content}
           role={message.role}
+          isLoading={message.isLoading}
         />
       ))}
-      {isLoading && <ChatMessage src={companion.src} role="system" isLoading />}
       <div ref={scrollRef} />
     </div>
   );
