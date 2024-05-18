@@ -15,6 +15,7 @@ import axios from "axios";
 import {
   ChevronLeft,
   Edit,
+  History,
   MessageSquare,
   MoreVertical,
   Trash,
@@ -51,7 +52,7 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
     }
   };
 
-  const onDeleteHistory = async () => {
+  const onClearMessageHistory = async () => {
     try {
       await axios.delete(`/api/companion/${companion.id}/history`);
 
@@ -86,29 +87,32 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
           </p>
         </div>
       </div>
-      {user?.id === companion.userId && (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="p-4 outline-none">
-            <MoreVertical />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => router.push(`/companion/${companion.id}`)}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDeleteHistory}>
-              <Trash className="mr-2 h-4 w-4" />
-              Delete History
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDelete}>
-              <Trash className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger className="p-4 outline-none">
+          <MoreVertical />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onClearMessageHistory}>
+            <History className="mr-2 h-4 w-4" />
+            Clear Message History
+          </DropdownMenuItem>
+          {user?.id === companion.userId && (
+            <>
+              <DropdownMenuItem
+                onClick={() => router.push(`/companion/${companion.id}`)}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={onDelete}>
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
