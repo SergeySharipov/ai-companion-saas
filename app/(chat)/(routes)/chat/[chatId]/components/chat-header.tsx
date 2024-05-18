@@ -25,9 +25,6 @@ import { useRouter } from "next/navigation";
 interface ChatHeaderProps {
   companion: Companion & {
     messages: Message[];
-    _count: {
-      messages: number;
-    };
   };
 }
 
@@ -79,7 +76,7 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
             <p className="font-bold">{companion.name}</p>
             <div className="flex items-center text-xs text-muted-foreground">
               <MessageSquare className="mr-1 h-3 w-3" />
-              {companion._count.messages}
+              {companion.messages.length}
             </div>
           </div>
           <p className="text-xs text-muted-foreground">

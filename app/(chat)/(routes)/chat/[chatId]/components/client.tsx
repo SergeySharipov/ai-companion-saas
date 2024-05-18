@@ -12,9 +12,6 @@ import { ChatMessageProps } from "./chat-message";
 interface ChatClientProps {
   companion: Companion & {
     messages: Message[];
-    _count: {
-      messages: number;
-    };
   };
 }
 
@@ -23,8 +20,6 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
   const [messages, setMessages] = useState<any[]>(companion.messages);
 
   useEffect(() => {
-    console.log("companion.messages", companion.messages);
-    
     setMessages(companion.messages);
   }, [companion, setMessages]);
 

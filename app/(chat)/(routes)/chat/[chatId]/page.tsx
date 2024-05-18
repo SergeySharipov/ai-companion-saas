@@ -29,11 +29,6 @@ const ChatIdPage = async ({ params }: ChatIdPageProps) => {
           userId,
         },
       },
-      _count: {
-        select: {
-          messages: true,
-        },
-      },
     },
   });
 
