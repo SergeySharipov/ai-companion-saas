@@ -59,9 +59,13 @@ export const ProModal = () => {
         <DialogHeader className="space-y-4">
           <DialogTitle className="text-center">Upgrade to Pro</DialogTitle>
           <DialogDescription className="space-y-2 text-center">
-            Create
-            <span className="mx-1 font-medium text-sky-500">Custom AI</span>
-            Companions!
+            <p>
+              Create
+              <span className="mx-1 font-medium text-sky-500">Custom AI</span>
+              Companions!
+            </p>
+            <p>Send more than 15 messages</p>
+            <p>Send messages longer than 500 characters</p>
           </DialogDescription>
         </DialogHeader>
         <Separator />

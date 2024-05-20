@@ -9,6 +9,7 @@ import { ChatForm } from "./chat-form";
 import { ChatHeader } from "./chat-header";
 import { ChatMessages } from "./chat-messages";
 import { ChatMessageProps } from "./chat-message";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ChatClientProps {
   companion: Companion & {
@@ -18,6 +19,7 @@ interface ChatClientProps {
 
 export const ChatClient = ({ companion }: ChatClientProps) => {
   const router = useRouter();
+  const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessageProps[]>(
     companion.messages,
   );
@@ -33,6 +35,22 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
         setInput("");
 
         router.refresh();
+      },
+      onError(e) {
+        setMessages(companion.messages);
+
+        if (e.message == "Premium subscription is required") {
+          toast({
+            description:
+              "You've reached your free request limit. A premium subscription is required to continue.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            description: "Something went wrong.",
+            variant: "destructive",
+          });
+        }
       },
     });
 

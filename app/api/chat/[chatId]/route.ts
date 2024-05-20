@@ -8,6 +8,11 @@ import { rateLimit } from "@/lib/rate-limit";
 import prismadb from "@/lib/prismadb";
 import { ChatOpenAI } from "@langchain/openai";
 import { CallbackManager } from "@langchain/core/callbacks/manager";
+import {
+  checkAiRequestsCount,
+  decreaseAiRequestsCount,
+} from "@/lib/user-settings";
+import { checkSubscription } from "@/lib/subscription";
 
 dotenv.config({ path: `.env` });
 
@@ -28,6 +33,18 @@ export async function POST(
 
     if (!success) {
       return new NextResponse("Rate limit exceeded", { status: 429 });
+    }
+
+    const isPro = await checkSubscription();
+
+    if (!isPro) {
+      const checkAiRequestsCountResp = await checkAiRequestsCount();
+
+      if (!checkAiRequestsCountResp) {
+        return new NextResponse("Premium subscription is required", {
+          status: 402,
+        });
+      }
     }
 
     const companion = await prismadb.companion.update({
@@ -134,6 +151,10 @@ export async function POST(
         },
       },
     });
+
+    if (!isPro) {
+      await decreaseAiRequestsCount();
+    }
 
     return new StreamingTextResponse(s);
   } catch (error) {

@@ -1,0 +1,2 @@
+export const MAX_CHAT_MESSAGE_LENGTH = 500;
+export const MAX_AI_REQUESTS_FREE_COUNTS = 15;

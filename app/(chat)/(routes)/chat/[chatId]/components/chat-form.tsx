@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MAX_CHAT_MESSAGE_LENGTH } from "@/constants";
 import { ChatRequestOptions } from "ai";
 import { SendHorizonal } from "lucide-react";
 import { ChangeEvent, FormEvent } from "react";
@@ -34,10 +35,11 @@ export const ChatForm = ({
         value={input}
         onChange={handleInputChange}
         placeholder="Type a message"
+        maxLength={MAX_CHAT_MESSAGE_LENGTH}
         className="rounded-lg bg-primary/10"
       />
       <Button disabled={isLoading} variant="ghost">
-        <SendHorizonal className="h-6 w-6"/>
+        <SendHorizonal className="h-6 w-6" />
       </Button>
     </form>
   );
