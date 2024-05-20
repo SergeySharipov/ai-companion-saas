@@ -27,19 +27,26 @@ export const ProModal = () => {
   }, []);
 
   const onSubscribe = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("/api/stripe");
+    toast({
+      description:
+        "This application is currently in development, and subscriptions are temporarily disabled. Sorry, for inconvenience.",
+      variant: "destructive",
+    });
 
-      window.location.href = response.data.url;
-    } catch (error) {
-      toast({
-        description: "Something went wrong",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    // TODO Add system params to enable Subscriptions
+    // try {
+    //   setLoading(true);
+    //   const response = await axios.get("/api/stripe");
+
+    //   window.location.href = response.data.url;
+    // } catch (error) {
+    //   toast({
+    //     description: "Something went wrong",
+    //     variant: "destructive",
+    //   });
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   if (!isMounted) {
