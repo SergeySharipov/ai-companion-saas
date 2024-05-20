@@ -1,6 +1,8 @@
-import prismadb from "@/lib/prismadb";
-import { auth, redirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import { auth, redirectToSignIn } from "@clerk/nextjs";
+
+import prismadb from "@/lib/prismadb";
+
 import { ChatClient } from "./components/client";
 
 interface ChatIdPageProps {
@@ -33,7 +35,7 @@ const ChatIdPage = async ({ params }: ChatIdPageProps) => {
   });
 
   if (!companion) {
-    redirect("/");
+    return redirect("/");
   }
 
   return <ChatClient companion={companion} />;

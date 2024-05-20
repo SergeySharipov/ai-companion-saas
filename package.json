@@ -24,6 +24,7 @@
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
+    "@radix-ui/react-tooltip": "^1.0.7",
     "@upstash/ratelimit": "^1.0.1",
     "@upstash/redis": "^1.29.0",
     "ai": "^3.0.15",
@@ -43,9 +44,11 @@
     "react-dom": "^18",
     "react-hook-form": "^7.50.1",
     "react-spinners": "^0.13.8",
+    "stripe": "^15.7.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@types/node": "^20",

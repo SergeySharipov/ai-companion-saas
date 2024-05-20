@@ -1,12 +1,14 @@
-import prismadb from "@/lib/prismadb";
-import { currentUser } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
+
+import prismadb from "@/lib/prismadb";
+import { checkSubscription } from "@/lib/subscription";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const user = await currentUser();
-    const { name, description, instructions, seed, src, categoryId } = body;
+    const { src, name, description, instructions, seed, categoryId } = body;
 
     if (!user || !user.id || !user.firstName) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -23,7 +25,11 @@ export async function POST(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    // TODO: Check for subscription
+    const isPro = await checkSubscription();
+
+    if (!isPro) {
+      return new NextResponse("Pro subscription required", { status: 403 });
+    }
 
     const companion = await prismadb.companion.create({
       data: {
@@ -41,6 +47,6 @@ export async function POST(req: Request) {
     return NextResponse.json(companion);
   } catch (error) {
     console.log("[COMPANION_POST]", error);
-    return new NextResponse("Internal error", { status: 500 });
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

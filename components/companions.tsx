@@ -1,8 +1,9 @@
-import { Companion } from "@prisma/client";
 import Image from "next/image";
-import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
-import { MessageSquare } from "lucide-react";
+import { Companion } from "@prisma/client";
+import { MessagesSquare } from "lucide-react";
+
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 
 interface CompanionsProps {
   data: (Companion & { _count?: { messages?: number } })[];
@@ -13,7 +14,7 @@ export const Companions = ({ data }: CompanionsProps) => {
     return (
       <div className="flex flex-col items-center justify-center space-y-3 pt-10">
         <div className="relative h-60 w-60">
-          <Image fill className="grayscale" alt="Empty" src="/empty.png" />
+          <Image fill className="grayscale" src="/empty.png" alt="Empty" />
         </div>
         <p className="text-sm text-muted-foreground">No companions found.</p>
       </div>
@@ -34,16 +35,16 @@ export const Companions = ({ data }: CompanionsProps) => {
                   src={item.src}
                   fill
                   className="rounded-xl object-cover"
-                  alt="Companion"
+                  alt="Character"
                 />
               </div>
               <p className="font-bold">{item.name}</p>
               <p className="text-xs">{item.description}</p>
             </CardHeader>
-            <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
+            <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
               <p className="lowercase">@{item.userName}</p>
               <div className="flex items-center">
-                <MessageSquare className="mr-1 h-3 w-3" />
+                <MessagesSquare className="mr-1 h-3 w-3" />
                 {item._count?.messages ? item._count.messages : 0}
               </div>
             </CardFooter>

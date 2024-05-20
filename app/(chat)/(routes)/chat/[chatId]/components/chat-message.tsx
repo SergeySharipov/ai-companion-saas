@@ -32,7 +32,10 @@ export const ChatMessage = ({
     }
 
     navigator.clipboard.writeText(content);
-    toast({ description: "Message copied to clipboard" });
+    toast({
+      description: "Message copied to clipboard.",
+      duration: 3000,
+    });
   };
 
   return (
@@ -43,9 +46,9 @@ export const ChatMessage = ({
       )}
     >
       {role !== "user" && src && <BotAvatar src={src} />}
-      <div className="max-w-sm rounded-md bg-primary/10 px-4 py-2 text-sm whitespace-pre-wrap">
+      <div className="max-w-sm whitespace-pre-wrap rounded-md bg-primary/10 px-4 py-2 text-sm">
         {isLoading ? (
-          <BeatLoader size={5} color={theme === "light" ? "black" : "white"} />
+          <BeatLoader color={theme === "light" ? "black" : "white"} size={5} />
         ) : (
           content
         )}
