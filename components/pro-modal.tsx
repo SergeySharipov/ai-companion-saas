@@ -15,6 +15,7 @@ import { useProModal } from "@/hooks/use-pro-modal";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
+import { MAX_AI_REQUESTS_FREE_COUNTS, MAX_CHAT_MESSAGE_LENGTH } from "@/constants";
 
 export const ProModal = () => {
   const proModal = useProModal();
@@ -64,8 +65,8 @@ export const ProModal = () => {
               <span className="mx-1 font-medium text-sky-500">Custom AI</span>
               Companions!
             </p>
-            <p>Send more than 15 messages</p>
-            <p>Send messages longer than 500 characters</p>
+            <p>Send more than {MAX_AI_REQUESTS_FREE_COUNTS} messages</p>
+            <p>Send messages longer than {MAX_CHAT_MESSAGE_LENGTH} characters</p>
           </DialogDescription>
         </DialogHeader>
         <Separator />
