@@ -24,11 +24,12 @@ export const Companions = ({ data }: CompanionsProps) => {
   return (
     <div className="grid grid-cols-2 gap-2 pb-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {data.map((item) => (
-        <Card
+        <Link
+          className="cursor-pointer"
           key={item.id}
-          className="cursor-pointer rounded-xl border-0 bg-primary/10 transition hover:opacity-75"
+          href={`/chat/${item.id}`}
         >
-          <Link href={`/chat/${item.id}`}>
+          <Card className="flex h-full flex-col rounded-xl border-0 bg-primary/10 transition hover:opacity-75">
             <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
               <div className="relative h-32 w-32">
                 <Image
@@ -41,14 +42,14 @@ export const Companions = ({ data }: CompanionsProps) => {
               <p className="font-bold">{item.name}</p>
               <p className="text-xs">{item.description}</p>
             </CardHeader>
-            <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
+            <CardFooter className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center">
                 <MessagesSquare className="mr-1 h-3 w-3" />
                 {item._count?.messages ? item._count.messages : 0}
               </div>
             </CardFooter>
-          </Link>
-        </Card>
+          </Card>
+        </Link>
       ))}
     </div>
   );
