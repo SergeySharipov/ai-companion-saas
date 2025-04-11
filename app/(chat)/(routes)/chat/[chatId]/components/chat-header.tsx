@@ -79,9 +79,6 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
               {companion.messages.length}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Created by {companion.userName}
-          </p>
         </div>
       </div>
       <DropdownMenu>

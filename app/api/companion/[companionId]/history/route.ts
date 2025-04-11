@@ -14,7 +14,7 @@ export async function DELETE(
       return new NextResponse("Companion ID is required", { status: 400 });
     }
 
-    if (!user || !user.id || !user.firstName) {
+    if (!user || !user.id) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 

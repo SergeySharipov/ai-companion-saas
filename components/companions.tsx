@@ -42,7 +42,6 @@ export const Companions = ({ data }: CompanionsProps) => {
               <p className="text-xs">{item.description}</p>
             </CardHeader>
             <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-              <p className="lowercase">@{item.userName}</p>
               <div className="flex items-center">
                 <MessagesSquare className="mr-1 h-3 w-3" />
                 {item._count?.messages ? item._count.messages : 0}
