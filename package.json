@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@langchain/openai": "0.0.26",
     "@langchain/pinecone": "0.0.4",
+    "@next/third-parties": "^15.3.0",
     "@pinecone-database/pinecone": "2.2.0",
     "@prisma/client": "^5.11.0",
     "@radix-ui/react-avatar": "^1.0.4",
