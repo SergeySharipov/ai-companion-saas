@@ -11,14 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useProModal } from "@/hooks/use-pro-modal";
+import { useModal } from "@/hooks/use-modal";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
-import { MAX_AI_REQUESTS_FREE_COUNTS, MAX_CHAT_MESSAGE_LENGTH } from "@/constants";
+import {
+  MAX_AI_REQUESTS_FREE_COUNTS,
+  MAX_CHAT_MESSAGE_LENGTH,
+  PRO_MODAL,
+} from "@/constants";
 
 export const ProModal = () => {
-  const proModal = useProModal();
+  const proModal = useModal(PRO_MODAL);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -66,7 +70,9 @@ export const ProModal = () => {
               Companions!
             </p>
             <p>Send more than {MAX_AI_REQUESTS_FREE_COUNTS} messages</p>
-            <p>Send messages longer than {MAX_CHAT_MESSAGE_LENGTH} characters</p>
+            <p>
+              Send messages longer than {MAX_CHAT_MESSAGE_LENGTH} characters
+            </p>
           </DialogDescription>
         </DialogHeader>
         <Separator />

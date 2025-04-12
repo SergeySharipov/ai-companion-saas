@@ -1,2 +1,5 @@
+export const FEEDBACK_MODAL = "FEEDBACK_MODAL";
+export const PRO_MODAL = "PRO_MODAL";
+
 export const MAX_CHAT_MESSAGE_LENGTH = 500;
 export const MAX_AI_REQUESTS_FREE_COUNTS = 15;

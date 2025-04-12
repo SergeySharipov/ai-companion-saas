@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { ProModal } from "@/components/pro-modal";
+import { FeedbackModal } from "@/components/feedback-modal";
 
 import "./globals.css";
 
@@ -26,6 +27,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={cn("bg-secondary", inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <FeedbackModal />
             <ProModal />
             {children}
             <Toaster />
