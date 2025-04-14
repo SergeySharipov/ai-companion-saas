@@ -13,7 +13,7 @@ export const SubscriptionButton = () => {
   const [loading, setLoading] = useState(false);
 
   const onClick = async () => {
-    if (!isPro && process.env.ENABLE_NEW_SUBSCRIPTIONS === "true") {
+    if (isPro || process.env.ENABLE_NEW_SUBSCRIPTIONS === "true") {
       try {
         setLoading(true);
 
