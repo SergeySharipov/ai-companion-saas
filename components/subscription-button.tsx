@@ -5,8 +5,10 @@ import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useIsPro } from "@/store/useSubscriptionStore";
 
-export const SubscriptionButton = ({ isPro = false }: { isPro?: boolean }) => {
+export const SubscriptionButton = () => {
+  const isPro = useIsPro();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 

@@ -9,21 +9,20 @@ import { MobileSidebar } from "@/components/mobile-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/use-modal";
-import { FEEDBACK_MODAL, PRO_MODAL } from "@/constants";
-import { OpenProModalButton } from "./open-pro-modal-button";
+import { FEEDBACK_MODAL } from "@/constants";
+import { useIsPro } from "@/store/useSubscriptionStore";
+import { OpenProModalButton } from "@/components/open-pro-modal-button";
 
 const font = Poppins({ weight: "600", subsets: ["latin"] });
-interface NavbarProps {
-  isPro: boolean;
-}
 
-export const Navbar = ({ isPro }: NavbarProps) => {
+export const Navbar = () => {
+  const isPro = useIsPro();
   const feedbackModal = useModal(FEEDBACK_MODAL);
 
   return (
     <div className="fixed z-50 flex h-16 w-full items-center justify-between border-b border-primary/10 bg-secondary px-4 py-2">
       <div className="flex items-center">
-        <MobileSidebar isPro={isPro} />
+        <MobileSidebar />
         <Link href="/">
           <h1
             className={cn(

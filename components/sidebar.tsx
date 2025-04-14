@@ -6,12 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/hooks/use-modal";
 import { PRO_MODAL } from "@/constants";
+import { useIsPro } from "@/store/useSubscriptionStore";
 
-interface SidebarProps {
-  isPro: boolean;
-}
-
-export const Sidebar = ({ isPro }: SidebarProps) => {
+export const Sidebar = () => {
+  const isPro = useIsPro();
   const proModal = useModal(PRO_MODAL);
   const router = useRouter();
   const pathname = usePathname();
