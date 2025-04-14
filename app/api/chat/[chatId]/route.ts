@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import { StreamingTextResponse, LangChainStream } from "ai";
 import { currentUser } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
@@ -13,8 +12,6 @@ import {
   decreaseAiRequestsCount,
 } from "@/lib/user-settings";
 import { checkSubscription } from "@/lib/subscription";
-
-dotenv.config({ path: `.env` });
 
 export async function POST(
   request: Request,
@@ -66,39 +63,35 @@ export async function POST(
       return new NextResponse("Companion not found", { status: 404 });
     }
 
-    const companion_file_name = companion.id! + ".txt";
+    const companion_file_name = companion.id + ".txt";
 
     const companionKey = {
       companionId: companion.id,
       userId: user.id,
     };
-    const memoryManager = await MemoryManager.getInstance();
 
-    const records = await memoryManager.readLatestHistory(companionKey);
-    if (records.length === 0) {
+    const memoryManager = await MemoryManager.getInstance();
+    const existingRecords = await memoryManager.readLatestHistory(companionKey);
+
+    if (existingRecords.length === 0) {
       await memoryManager.seedChatHistory(companion.seed, "\n\n", companionKey);
     }
-    await memoryManager.writeToHistory("User: " + prompt + "\n", companionKey);
 
-    // Query Pinecone
+    await memoryManager.writeToHistory(`User: ${prompt}\n`, companionKey);
 
     const recentChatHistory =
       await memoryManager.readLatestHistory(companionKey);
-
-    // Right now the preamble is included in the similarity search, but that
-    // shouldn't be an issue
 
     const similarDocs = await memoryManager.vectorSearch(
       recentChatHistory,
       companion_file_name,
     );
 
-    console.log("recentChatHistory", recentChatHistory, similarDocs);
-
     let relevantHistory = "";
-    if (!!similarDocs && similarDocs.length !== 0) {
+    if (similarDocs && similarDocs.length > 0) {
       relevantHistory = similarDocs.map((doc) => doc.pageContent).join("\n");
     }
+
     const { handlers } = LangChainStream();
 
     const openai = new ChatOpenAI({
@@ -107,34 +100,56 @@ export async function POST(
       callbackManager: CallbackManager.fromHandlers(handlers),
     });
 
-    // Turn verbose on for debugging
     openai.verbose = true;
 
-    const resp = await openai
-      .invoke(
-        `
-        ${companion.instructions}
+    const promptTemplate = `
+    You are ${companion.name}, an AI companion with the following backstory:
 
-        Try to give responses that are straight to the point. 
-        Below are relevant details about ${companion.name}'s past and the conversation you are in.
-        ${relevantHistory}
+    ${companion.instructions}
 
-        ${recentChatHistory}\n${companion.name}:`,
-      )
-      .catch(console.error);
+    ---
 
+    🧠 RELEVANT MEMORY
+    ${relevantHistory || "None."}
+
+    ---
+
+    💬 CHAT HISTORY
+    ${recentChatHistory}
+
+    ---
+
+    👤 USER MESSAGE
+    ${prompt}
+
+    ---
+
+    Respond naturally, in character, and clearly. 
+    Do not start your responses with roleplay formatting. 
+    Avoid using stage directions, labeled actions, or describing emotions.
+    Prefer short replies, but decide whether a short, medium, or long response fits best based on the User's message and context.
+    Use paragraph breaks when necessary to separate ideas and improve readability.
+    `.trim();
+
+    const resp = await openai.invoke(promptTemplate).catch(console.error);
     const content = resp?.content as string;
 
     if (!content && content?.length < 1) {
       return new NextResponse("content not found", { status: 404 });
     }
 
-    var Readable = require("stream").Readable;
-    let s = new Readable();
-    s.push(content);
-    s.push(null);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(content));
+        controller.close();
+      },
+    });
 
-    memoryManager.writeToHistory("" + content, companionKey);
+    await memoryManager.writeToHistory(
+      `${companion.name}: ${content}\n`,
+      companionKey,
+    );
 
     await prismadb.companion.update({
       where: {
@@ -155,7 +170,7 @@ export async function POST(
       await decreaseAiRequestsCount();
     }
 
-    return new StreamingTextResponse(s);
+    return new StreamingTextResponse(stream);
   } catch (error) {
     return new NextResponse("Internal Error", { status: 500 });
   }
