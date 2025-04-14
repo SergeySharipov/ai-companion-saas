@@ -103,7 +103,7 @@ export async function POST(
     openai.verbose = true;
 
     const promptTemplate = `
-    You are ${companion.name}, an AI companion with the following backstory:
+    You are ${companion.name}, with the following backstory:
 
     ${companion.instructions}
 
