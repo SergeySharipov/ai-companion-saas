@@ -22,7 +22,6 @@ export async function DELETE(
     const companionKey = {
       companionId: params.companionId,
       userId: user.id,
-      modelName: "gpt-3.5-turbo",
     };
     await memoryManager.clearHistory(companionKey);
 

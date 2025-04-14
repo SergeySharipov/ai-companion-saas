@@ -5,7 +5,6 @@ import { PineconeStore } from "@langchain/pinecone";
 
 export type CompanionKey = {
   companionId: string;
-  modelName: string;
   userId: string;
 };
 
@@ -31,7 +30,10 @@ export class MemoryManager {
     );
 
     const vectorStore = await PineconeStore.fromExistingIndex(
-      new OpenAIEmbeddings({ openAIApiKey: process.env.OPENAI_API_KEY }),
+      new OpenAIEmbeddings({
+        openAIApiKey: process.env.OPENAI_API_KEY,
+        modelName: process.env.OPENAI_API_EMBEDDINGS_MODEL_NAME,
+      }),
       { pineconeIndex },
     );
 
@@ -51,7 +53,7 @@ export class MemoryManager {
   }
 
   private generateRedisCompanionKey(companionKey: CompanionKey): string {
-    return `${companionKey.companionId}-${companionKey.modelName}-${companionKey.userId}`;
+    return `${companionKey.companionId}-${companionKey.userId}`;
   }
 
   public async writeToHistory(text: string, companionKey: CompanionKey) {
