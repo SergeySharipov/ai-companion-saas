@@ -1,30 +1,37 @@
 "use client";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Sparkles } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
-export const SubscriptionButton = ({ isPro = false }: { isPro: boolean }) => {
+export const SubscriptionButton = ({ isPro = false }: { isPro?: boolean }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const onClick = async () => {
-    try {
-      setLoading(true);
+    if (!isPro && process.env.ENABLE_NEW_SUBSCRIPTIONS === "true") {
+      try {
+        setLoading(true);
 
-      const response = await axios.get("/api/stripe");
+        const response = await axios.get("/api/stripe");
 
-      window.location.href = response.data.url;
-    } catch (error) {
+        window.location.href = response.data.url;
+      } catch (error) {
+        toast({
+          description: "Something went wrong",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    } else {
       toast({
-        description: "Something went wrong",
+        description:
+          "This application is currently in development, and subscriptions are temporarily disabled. Sorry, for inconvenience.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -35,7 +42,7 @@ export const SubscriptionButton = ({ isPro = false }: { isPro: boolean }) => {
       disabled={loading}
       onClick={onClick}
     >
-      {isPro ? "Manage Subscription" : "Upgrade"}
+      {isPro ? "Manage Subscription" : "Subscribe"}
       {!isPro && <Sparkles className="ml-2 h-4 w-4 fill-white" />}
     </Button>
   );

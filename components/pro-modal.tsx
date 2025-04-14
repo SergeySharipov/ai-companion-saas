@@ -12,47 +12,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useModal } from "@/hooks/use-modal";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
 import {
   MAX_AI_REQUESTS_FREE_COUNTS,
   MAX_CHAT_MESSAGE_LENGTH,
   PRO_MODAL,
 } from "@/constants";
+import { SubscriptionButton } from "./subscription-button";
 
 export const ProModal = () => {
   const proModal = useModal(PRO_MODAL);
   const [isMounted, setIsMounted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const onSubscribe = async () => {
-    toast({
-      description:
-        "This application is currently in development, and subscriptions are temporarily disabled. Sorry, for inconvenience.",
-      variant: "destructive",
-    });
-
-    // TODO Add system params to enable Subscriptions
-    // try {
-    //   setLoading(true);
-    //   const response = await axios.get("/api/stripe");
-
-    //   window.location.href = response.data.url;
-    // } catch (error) {
-    //   toast({
-    //     description: "Something went wrong",
-    //     variant: "destructive",
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
 
   if (!isMounted) {
     return null;
@@ -80,9 +54,7 @@ export const ProModal = () => {
           <p className="text-2xl font-medium">
             $9<span className="text-sm font-normal">.99 / mo</span>
           </p>
-          <Button onClick={onSubscribe} disabled={loading} variant="premium">
-            Subscribe
-          </Button>
+          <SubscriptionButton />
         </div>
       </DialogContent>
     </Dialog>

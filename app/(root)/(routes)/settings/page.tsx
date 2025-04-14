@@ -1,3 +1,4 @@
+import { OpenProModalButton } from "@/components/open-pro-modal-button";
 import { ResetButton } from "@/components/reset-button";
 import { SubscriptionButton } from "@/components/subscription-button";
 import { checkSubscription } from "@/lib/subscription";
@@ -11,7 +12,7 @@ const SettingsPage = async () => {
       <div className="text-muted-foreground text-sm">
         {isPro ? "You are currently on a Pro plan." : "You are currently on a free plan."}
       </div>
-      <SubscriptionButton isPro={isPro} />
+      {!isPro ? <OpenProModalButton /> : <SubscriptionButton isPro={isPro} />}
       {process.env.NODE_ENV !== "production" && <ResetButton />}
     </div>
   );

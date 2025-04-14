@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { Poppins } from "next/font/google";
-import { Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { MobileSidebar } from "@/components/mobile-sidebar";
@@ -11,6 +10,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/use-modal";
 import { FEEDBACK_MODAL, PRO_MODAL } from "@/constants";
+import { OpenProModalButton } from "./open-pro-modal-button";
 
 const font = Poppins({ weight: "600", subsets: ["latin"] });
 interface NavbarProps {
@@ -18,7 +18,6 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ isPro }: NavbarProps) => {
-  const proModal = useModal(PRO_MODAL);
   const feedbackModal = useModal(FEEDBACK_MODAL);
 
   return (
@@ -40,12 +39,7 @@ export const Navbar = ({ isPro }: NavbarProps) => {
         <Button onClick={feedbackModal.onOpen} size="sm">
           Feedback
         </Button>
-        {!isPro && (
-          <Button onClick={proModal.onOpen} size="sm" variant="premium">
-            Upgrade
-            <Sparkles className="ml-2 h-4 w-4 fill-white text-white" />
-          </Button>
-        )}
+        {!isPro && <OpenProModalButton />}
         <ModeToggle />
         <UserButton afterSignOutUrl="/sign-in" />
       </div>
