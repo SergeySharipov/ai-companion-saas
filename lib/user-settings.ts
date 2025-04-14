@@ -55,3 +55,28 @@ export const checkAiRequestsCount = async () => {
     return false;
   }
 };
+
+export const resetAiRequestsCount = async () => {
+  const { userId } = auth();
+
+  if (!userId) {
+    return false;
+  }
+
+  let userSettings = await prismadb.userSettings.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  if (userSettings !== null) {
+    await prismadb.userSettings.update({
+      where: {
+        userId,
+      },
+      data: {
+        aiRequestsCount: MAX_AI_REQUESTS_FREE_COUNTS,
+      },
+    });
+  }
+};
