@@ -37,7 +37,7 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
         router.refresh();
       },
       onError(e) {
-        setMessages(companion.messages);
+        router.refresh();
 
         if (e.message == "Premium subscription is required") {
           toast({
