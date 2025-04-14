@@ -82,7 +82,7 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
         </div>
       </div>
       <DropdownMenu>
-        <DropdownMenuTrigger className="p-4 outline-none">
+        <DropdownMenuTrigger className="p-4 outline-hidden">
           <MoreVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
