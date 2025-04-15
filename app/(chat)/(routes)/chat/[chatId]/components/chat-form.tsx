@@ -11,7 +11,7 @@ interface ChatFormProps {
   isLoading: boolean;
   input: string;
   handleInputChange: (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement>,
   ) => void;
   onSubmit: (
     e: FormEvent<HTMLFormElement>,

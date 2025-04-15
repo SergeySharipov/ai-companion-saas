@@ -19,15 +19,17 @@ export async function POST(request: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    const emailTemplate = await EmailTemplate({
+      userId: user.id,
+      userEmail: user.emailAddresses[0].emailAddress,
+      content: content,
+    });
+
     const { data, error } = await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
       to: [feedbackEmail],
       subject: "Feedback: ai-companion-saas.vercel.app",
-      react: EmailTemplate({
-        userId: user.id,
-        userEmail: user.emailAddresses[0].emailAddress,
-        content: content,
-      }),
+      react: emailTemplate,
     });
 
     if (error) {

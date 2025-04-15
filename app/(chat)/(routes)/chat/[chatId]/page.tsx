@@ -5,17 +5,17 @@ import prismadb from "@/lib/prismadb";
 
 import { ChatClient } from "./components/client";
 
-interface ChatIdPageProps {
-  params: Promise<{
-    chatId: string;
+interface PageProps {
+  params?: Promise<{
+    chatId?: string;
   }>;
 }
 
-const ChatIdPage = async (props: ChatIdPageProps) => {
+const Page = async (props: PageProps) => {
   const params = await props.params;
   const { userId, redirectToSignIn } = await auth();
 
-  if (!userId) {
+  if (!params?.chatId || !userId) {
     return redirectToSignIn();
   }
 
@@ -42,4 +42,4 @@ const ChatIdPage = async (props: ChatIdPageProps) => {
   return <ChatClient companion={companion} />;
 };
 
-export default ChatIdPage;
+export default Page;

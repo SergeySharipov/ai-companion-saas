@@ -15,9 +15,10 @@ const Page = async (props: PageProps) => {
   const searchParams = await props.searchParams;
   const { userId } = await auth();
 
-  let data;
+  let companions;
+  
   if (userId) {
-    data = await prismadb.companion.findMany({
+    companions = await prismadb.companion.findMany({
       where: {
         categoryId: searchParams.categoryId,
         name: {
@@ -40,20 +41,7 @@ const Page = async (props: PageProps) => {
         },
       },
     });
-  } else {
-    data = await prismadb.companion.findMany({
-      where: {
-        categoryId: searchParams.categoryId,
-        name: {
-          contains: searchParams.name,
-          mode: "insensitive",
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-  }
+  };
 
   const categories = await prismadb.category.findMany();
 
@@ -61,7 +49,7 @@ const Page = async (props: PageProps) => {
     <div className="h-full space-y-2 p-4">
       <SearchInput />
       <Categories data={categories} />
-      <Companions data={data} />
+      <Companions data={companions} />
     </div>
   );
 };

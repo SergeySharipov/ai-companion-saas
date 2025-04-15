@@ -20,13 +20,13 @@ export const Navbar = () => {
   const feedbackModal = useModal(FEEDBACK_MODAL);
 
   return (
-    <div className="fixed z-50 flex h-16 w-full items-center justify-between border-b border-primary/10 bg-secondary px-4 py-2">
+    <div className="border-primary/10 bg-secondary fixed z-50 flex h-16 w-full items-center justify-between border-b px-4 py-2">
       <div className="flex items-center">
         <MobileSidebar />
         <Link href="/">
           <h1
             className={cn(
-              "hidden text-xl font-bold text-primary md:block md:text-3xl",
+              "text-primary hidden text-xl font-bold md:block md:text-3xl",
               font.className,
             )}
           >
