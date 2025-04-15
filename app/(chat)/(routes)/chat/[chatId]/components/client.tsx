@@ -1,7 +1,7 @@
 "use client";
 
-import { useCompletion } from "ai/react";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import axios from "axios";
 import { Companion, Message } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
@@ -20,54 +20,58 @@ interface ChatClientProps {
 export const ChatClient = ({ companion }: ChatClientProps) => {
   const router = useRouter();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<ChatMessageProps[]>(
-    companion.messages,
-  );
+  const [messages, setMessages] = useState<ChatMessageProps[]>(companion.messages);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setMessages(companion.messages);
-  }, [companion, setMessages]);
+  }, [companion]);
 
-  const { input, isLoading, handleInputChange, handleSubmit, setInput } =
-    useCompletion({
-      api: `/api/chat/${companion.id}`,
-      onFinish(prompt, completion) {
-        setInput("");
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
 
-        router.refresh();
-      },
-      onError(e) {
-        router.refresh();
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
 
-        if (e.message == "Premium subscription is required") {
-          toast({
-            description:
-              "You've reached your free request limit. A premium subscription is required to continue.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            description: "Something went wrong.",
-            variant: "destructive",
-          });
-        }
-      },
-    });
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     const userMessage: ChatMessageProps = {
       role: "user",
       content: input,
-      id: "user" + new Date().toISOString(),
+      id: "user-" + new Date().toISOString(),
     };
+
     const systemMessage: ChatMessageProps = {
       role: "system",
+      content: "",
       isLoading: true,
-      id: "system" + new Date().toISOString(),
+      id: "system-" + new Date().toISOString(),
     };
-    setMessages((current) => [...current, userMessage, systemMessage]);
 
-    handleSubmit(e);
+    setMessages((prev) => [...prev, userMessage, systemMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(`/api/chat/${companion.id}`, { prompt: input });
+      const text = response.data;
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === systemMessage.id ? { ...msg, content: text, isLoading: false } : msg
+        )
+      );
+      setInput("");
+      //router.refresh();
+    } catch (error: any) {
+      setMessages((prev) => prev.filter((msg) => msg.id !== systemMessage.id));
+      toast({
+        description: error.response?.data || "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

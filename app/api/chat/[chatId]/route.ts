@@ -1,29 +1,31 @@
-import { StreamingTextResponse, LangChainStream } from "ai";
-import { currentUser } from "@clerk/nextjs/server";
+import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { MemoryManager } from "@/lib/memory";
 import { rateLimit } from "@/lib/rate-limit";
 import prismadb from "@/lib/prismadb";
-import { ChatOpenAI } from "@langchain/openai";
-import { CallbackManager } from "@langchain/core/callbacks/manager";
 import {
   checkAiRequestsCount,
   decreaseAiRequestsCount,
 } from "@/lib/user-settings";
 import { checkSubscription } from "@/lib/subscription";
 
-export async function POST(request: Request, props: { params: Promise<{ chatId: string }> }) {
+export async function POST(
+  request: Request,
+  props: { params: Promise<{ chatId: string }> },
+) {
   const params = await props.params;
   try {
     const { prompt } = await request.json();
-    const user = await currentUser();
+    const { userId } = await auth();
 
-    if (!user || !user.id) {
+    if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const identifier = request.url + "-" + user.id;
+    const identifier = request.url + "-" + userId;
     const { success } = await rateLimit(identifier);
 
     if (!success) {
@@ -51,7 +53,7 @@ export async function POST(request: Request, props: { params: Promise<{ chatId: 
           create: {
             content: prompt,
             role: "user",
-            userId: user.id,
+            userId: userId,
           },
         },
       },
@@ -65,7 +67,7 @@ export async function POST(request: Request, props: { params: Promise<{ chatId: 
 
     const companionKey = {
       companionId: companion.id,
-      userId: user.id,
+      userId: userId,
     };
 
     const memoryManager = await MemoryManager.getInstance();
@@ -89,16 +91,6 @@ export async function POST(request: Request, props: { params: Promise<{ chatId: 
     if (similarDocs && similarDocs.length > 0) {
       relevantHistory = similarDocs.map((doc) => doc.pageContent).join("\n");
     }
-
-    const { handlers } = LangChainStream();
-
-    const openai = new ChatOpenAI({
-      openAIApiKey: process.env.OPENAI_API_KEY,
-      modelName: process.env.OPENAI_API_MODEL_NAME,
-      callbackManager: CallbackManager.fromHandlers(handlers),
-    });
-
-    openai.verbose = true;
 
     const promptTemplate = `
     You are ${companion.name}, with the following backstory:
@@ -129,23 +121,23 @@ export async function POST(request: Request, props: { params: Promise<{ chatId: 
     Use paragraph breaks when necessary to separate ideas and improve readability.
     `.trim();
 
-    const resp = await openai.invoke(promptTemplate).catch(console.error);
-    const content = resp?.content as string;
+    const openai = createOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-    if (!content && content?.length < 1) {
-      return new NextResponse("content not found", { status: 404 });
+    const model = process.env.OPENAI_API_MODEL_NAME;
+
+    if (!model) {
+      return;
     }
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(encoder.encode(content));
-        controller.close();
-      },
+    const { text } = await generateText({
+      model: openai.chat(model),
+      prompt: promptTemplate,
     });
 
     await memoryManager.writeToHistory(
-      `${companion.name}: ${content}\n`,
+      `${companion.name}: ${text}\n`,
       companionKey,
     );
 
@@ -156,9 +148,9 @@ export async function POST(request: Request, props: { params: Promise<{ chatId: 
       data: {
         messages: {
           create: {
-            content: content,
+            content: text,
             role: "system",
-            userId: user.id,
+            userId: userId,
           },
         },
       },
@@ -168,7 +160,11 @@ export async function POST(request: Request, props: { params: Promise<{ chatId: 
       await decreaseAiRequestsCount();
     }
 
-    return new StreamingTextResponse(stream);
+    return new NextResponse(text, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+      },
+    });
   } catch (error) {
     return new NextResponse("Internal Error", { status: 500 });
   }
