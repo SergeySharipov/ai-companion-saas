@@ -35,6 +35,8 @@ export const Companions = ({ data }: CompanionsProps) => {
                 <Image
                   src={item.src}
                   fill
+                  sizes="128px"
+                  loading="lazy"
                   className="rounded-xl object-cover"
                   alt="Character"
                 />
