@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
@@ -9,26 +9,25 @@ const settingsUrl = absoluteUrl("/settings");
 
 export async function GET() {
   try {
-    const { userId } = await auth();
     const user = await currentUser();
 
-    if (!userId || !user) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const userSubscription = await prismadb.userSubscription.findUnique({
       where: {
-        userId
-      }
-    })
+        userId: user?.id,
+      },
+    });
 
     if (userSubscription && userSubscription.stripeCustomerId) {
       const stripeSession = await stripe.billingPortal.sessions.create({
         customer: userSubscription.stripeCustomerId,
         return_url: settingsUrl,
-      })
+      });
 
-      return new NextResponse(JSON.stringify({ url: stripeSession.url }))
+      return new NextResponse(JSON.stringify({ url: stripeSession.url }));
     }
 
     const stripeSession = await stripe.checkout.sessions.create({
@@ -44,24 +43,24 @@ export async function GET() {
             currency: "USD",
             product_data: {
               name: "Companion Pro",
-              description: "Create Custom AI Companions"
+              description: "Create Custom AI Companions",
             },
             unit_amount: 999,
             recurring: {
-              interval: "month"
-            }
+              interval: "month",
+            },
           },
           quantity: 1,
         },
       ],
       metadata: {
-        userId,
+        userId: user?.id,
       },
-    })
+    });
 
-    return new NextResponse(JSON.stringify({ url: stripeSession.url }))
+    return new NextResponse(JSON.stringify({ url: stripeSession.url }));
   } catch (error) {
     console.log("[STRIPE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-};
+}

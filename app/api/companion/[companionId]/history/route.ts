@@ -1,32 +1,32 @@
 import { MemoryManager } from "@/lib/memory";
 import prismadb from "@/lib/prismadb";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function DELETE(req: Request, props: { params: Promise<{ companionId: string }> }) {
   const params = await props.params;
   try {
-    const user = await currentUser();
+    const { userId } = await auth();
 
     if (!params.companionId) {
       return new NextResponse("Companion ID is required", { status: 400 });
     }
 
-    if (!user || !user.id) {
+    if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const memoryManager = await MemoryManager.getInstance();
     const companionKey = {
       companionId: params.companionId,
-      userId: user.id,
+      userId: userId,
     };
     await memoryManager.clearHistory(companionKey);
 
     await prismadb.message.deleteMany({
       where: {
         companionId: params.companionId,
-        userId: user.id,
+        userId: userId,
       },
     });
 
