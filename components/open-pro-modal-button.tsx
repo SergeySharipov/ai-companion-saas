@@ -10,7 +10,7 @@ export const OpenProModalButton = () => {
   const proModal = useModal(PRO_MODAL);
 
   return (
-    <Button size="sm" variant="premium" onClick={proModal.onOpen}>
+    <Button variant="premium" onClick={proModal.onOpen}>
       Upgrade
       <Sparkles className="ml-2 h-4 w-4 fill-white" />
     </Button>
