@@ -2,17 +2,18 @@ import { Categories } from "@/components/categories";
 import { Companions } from "@/components/companions";
 import { SearchInput } from "@/components/search-input";
 import prismadb from "@/lib/prismadb";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     categoryId: string;
     name: string;
-  };
+  }>;
 }
 
-const Page = async ({ searchParams }: PageProps) => {
-  const { userId } = auth();
+const Page = async (props: PageProps) => {
+  const searchParams = await props.searchParams;
+  const { userId } = await auth();
 
   let data;
   if (userId) {

@@ -1,5 +1,5 @@
 import { StreamingTextResponse, LangChainStream } from "ai";
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { MemoryManager } from "@/lib/memory";
@@ -13,10 +13,8 @@ import {
 } from "@/lib/user-settings";
 import { checkSubscription } from "@/lib/subscription";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { chatId: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ chatId: string }> }) {
+  const params = await props.params;
   try {
     const { prompt } = await request.json();
     const user = await currentUser();

@@ -1,13 +1,11 @@
-import { auth, currentUser } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
 import { checkSubscription } from "@/lib/subscription";
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { companionId: string } },
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ companionId: string }> }) {
+  const params = await props.params;
   try {
     const body = await req.json();
     const user = await currentUser();
@@ -61,12 +59,10 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { companionId: string } },
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ companionId: string }> }) {
+  const params = await props.params;
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });

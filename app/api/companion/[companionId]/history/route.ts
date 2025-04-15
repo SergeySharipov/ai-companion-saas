@@ -1,12 +1,10 @@
 import { MemoryManager } from "@/lib/memory";
 import prismadb from "@/lib/prismadb";
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { companionId: string } },
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ companionId: string }> }) {
+  const params = await props.params;
   try {
     const user = await currentUser();
 

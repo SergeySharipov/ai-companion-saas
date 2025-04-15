@@ -1,10 +1,10 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
 import { MAX_AI_REQUESTS_FREE_COUNTS } from "@/constants";
 import prismadb from "./prismadb";
 
 export const decreaseAiRequestsCount = async () => {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     return;
@@ -31,7 +31,7 @@ export const decreaseAiRequestsCount = async () => {
 };
 
 export const checkAiRequestsCount = async () => {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     return false;
@@ -57,7 +57,7 @@ export const checkAiRequestsCount = async () => {
 };
 
 export const resetAiRequestsCount = async () => {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     return false;

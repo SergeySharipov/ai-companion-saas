@@ -1,5 +1,5 @@
 import { EmailTemplate } from "@/components/email-template";
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 

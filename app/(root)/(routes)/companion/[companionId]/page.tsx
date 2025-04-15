@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
 import prismadb from "@/lib/prismadb";
 import { checkSubscription } from "@/lib/subscription";
@@ -7,13 +7,14 @@ import { checkSubscription } from "@/lib/subscription";
 import { CompanionForm } from "./components/companion-form";
 
 interface CompanionIdPageProps {
-  params: {
+  params: Promise<{
     companionId: string;
-  };
+  }>;
 }
 
-const CompanionIdPage = async ({ params }: CompanionIdPageProps) => {
-  const { userId } = auth();
+const CompanionIdPage = async (props: CompanionIdPageProps) => {
+  const params = await props.params;
+  const { userId, redirectToSignIn } = await auth();
 
   if (!userId) {
     return redirectToSignIn();

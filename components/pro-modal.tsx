@@ -37,17 +37,17 @@ export const ProModal = () => {
       <DialogContent>
         <DialogHeader className="space-y-4">
           <DialogTitle className="text-center">Upgrade to Pro</DialogTitle>
-          <DialogDescription className="space-y-2 text-center">
-            <p>
+          <div className="space-y-2 text-center">
+            <DialogDescription>
               Create
               <span className="mx-1 font-medium text-sky-500">Custom AI</span>
               Companions!
-            </p>
-            <p>Send more than {MAX_AI_REQUESTS_FREE_COUNTS} messages</p>
-            <p>
+            </DialogDescription>
+            <DialogDescription>Send more than {MAX_AI_REQUESTS_FREE_COUNTS} messages</DialogDescription>
+            <DialogDescription>
               Send messages longer than {MAX_CHAT_MESSAGE_LENGTH} characters
-            </p>
-          </DialogDescription>
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <Separator />
         <div className="flex justify-between">
