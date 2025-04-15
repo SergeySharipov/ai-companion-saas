@@ -2,7 +2,7 @@
 
 import { BotAvatar } from "@/components/bot-avatar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { UserAvatar } from "@/components/user-avatar";
 import { cn } from "@/lib/utils";
 import { Copy } from "lucide-react";
@@ -23,7 +23,6 @@ export const ChatMessage = ({
   isLoading,
   src,
 }: ChatMessageProps) => {
-  const { toast } = useToast();
   const { theme } = useTheme();
 
   const onCopy = () => {
@@ -32,10 +31,7 @@ export const ChatMessage = ({
     }
 
     navigator.clipboard.writeText(content);
-    toast({
-      description: "Message copied to clipboard.",
-      duration: 3000,
-    });
+    toast("Message copied to clipboard.");
   };
 
   return (
@@ -46,7 +42,7 @@ export const ChatMessage = ({
       )}
     >
       {role !== "user" && src && <BotAvatar src={src} />}
-      <div className="max-w-sm whitespace-pre-wrap rounded-md bg-primary/10 px-4 py-2 text-sm">
+      <div className="bg-primary/10 max-w-sm rounded-md px-4 py-2 text-sm whitespace-pre-wrap">
         {isLoading ? (
           <BeatLoader color={theme === "light" ? "black" : "white"} size={5} />
         ) : (

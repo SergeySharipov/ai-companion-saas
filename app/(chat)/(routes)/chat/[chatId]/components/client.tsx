@@ -9,7 +9,7 @@ import { ChatForm } from "./chat-form";
 import { ChatHeader } from "./chat-header";
 import { ChatMessages } from "./chat-messages";
 import { ChatMessageProps } from "./chat-message";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface ChatClientProps {
   companion: Companion & {
@@ -19,8 +19,9 @@ interface ChatClientProps {
 
 export const ChatClient = ({ companion }: ChatClientProps) => {
   const router = useRouter();
-  const { toast } = useToast();
-  const [messages, setMessages] = useState<ChatMessageProps[]>(companion.messages);
+  const [messages, setMessages] = useState<ChatMessageProps[]>(
+    companion.messages,
+  );
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,22 +54,23 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`/api/chat/${companion.id}`, { prompt: input });
+      const response = await axios.post(`/api/chat/${companion.id}`, {
+        prompt: input,
+      });
       const text = response.data;
 
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.id === systemMessage.id ? { ...msg, content: text, isLoading: false } : msg
-        )
+          msg.id === systemMessage.id
+            ? { ...msg, content: text, isLoading: false }
+            : msg,
+        ),
       );
       setInput("");
       //router.refresh();
     } catch (error: any) {
       setMessages((prev) => prev.filter((msg) => msg.id !== systemMessage.id));
-      toast({
-        description: error.response?.data || "An error occurred",
-        variant: "destructive",
-      });
+      toast(error.response?.data || "An error occurred");
     } finally {
       setIsLoading(false);
     }

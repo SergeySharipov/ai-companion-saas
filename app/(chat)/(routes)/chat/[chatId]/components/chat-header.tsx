@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 import { Companion, Message } from "@prisma/client";
 import axios from "axios";
@@ -31,21 +31,17 @@ interface ChatHeaderProps {
 export const ChatHeader = ({ companion }: ChatHeaderProps) => {
   const router = useRouter();
   const { user } = useUser();
-  const { toast } = useToast();
 
   const onDelete = async () => {
     try {
       await axios.delete(`/api/companion/${companion.id}`);
 
-      toast({ description: "Success." });
+      toast("Success.");
 
       router.refresh();
       router.push("/");
     } catch (error) {
-      toast({
-        description: "Something went wrong.",
-        variant: "destructive",
-      });
+      toast("Something went wrong.");
     }
   };
 
@@ -53,19 +49,16 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
     try {
       await axios.delete(`/api/companion/${companion.id}/history`);
 
-      toast({ description: "Success." });
+      toast("Success.");
 
       router.refresh();
     } catch (error) {
-      toast({
-        description: "Something went wrong.",
-        variant: "destructive",
-      });
+      toast("Something went wrong.");
     }
   };
 
   return (
-    <div className="flex w-full items-center justify-between border-b border-primary/10 pb-4">
+    <div className="border-primary/10 flex w-full items-center justify-between border-b pb-4">
       <div className="flex items-center gap-x-2">
         <Button size="icon" variant="ghost" onClick={() => router.back()}>
           <ChevronLeft className="h-8 w-8" />
@@ -74,7 +67,7 @@ export const ChatHeader = ({ companion }: ChatHeaderProps) => {
         <div className="flex flex-col gap-y-1">
           <div className="flex items-center gap-x-2">
             <p className="font-bold">{companion.name}</p>
-            <div className="flex items-center text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex items-center text-xs">
               <MessageSquare className="mr-1 h-3 w-3" />
               {companion.messages.length}
             </div>

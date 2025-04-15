@@ -4,12 +4,11 @@ import axios from "axios";
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useIsPro } from "@/store/useSubscriptionStore";
 
 export const SubscriptionButton = () => {
   const isPro = useIsPro();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const onClick = async () => {
@@ -21,25 +20,17 @@ export const SubscriptionButton = () => {
 
         window.location.href = response.data.url;
       } catch (error) {
-        toast({
-          description: "Something went wrong",
-          variant: "destructive",
-        });
+        toast("Something went wrong");
       } finally {
         setLoading(false);
       }
     } else {
-      toast({
-        description:
-          "This application is currently in development, and subscriptions are temporarily disabled. Sorry, for inconvenience.",
-        variant: "destructive",
-      });
+      toast("This application is currently in development, and subscriptions are temporarily disabled. Sorry, for inconvenience.");
     }
   };
 
   return (
     <Button
-      size="sm"
       variant={isPro ? "default" : "premium"}
       disabled={loading}
       onClick={onClick}

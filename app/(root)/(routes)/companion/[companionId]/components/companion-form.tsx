@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/image-upload";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -77,7 +77,6 @@ export const CompanionForm = ({
   categories,
   initialData,
 }: CompanionFormProps) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -102,19 +101,12 @@ export const CompanionForm = ({
         await axios.post("/api/companion", values);
       }
 
-      toast({
-        description: "Success.",
-        duration: 3000,
-      });
+      toast("Success.");
 
       router.refresh();
       router.push("/");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        description: "Something went wrong.",
-        duration: 3000,
-      });
+      toast("Something went wrong.");
     }
   };
 
@@ -128,7 +120,7 @@ export const CompanionForm = ({
           <div className="col-span-2 w-full space-y-2">
             <div>
               <h3 className="text-lg font-medium">General Information</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 General information about your Companion
               </p>
             </div>
@@ -229,7 +221,7 @@ export const CompanionForm = ({
           <div className="w-full space-y-2">
             <div>
               <h3 className="text-lg font-medium">Configuration</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Detailed instructions for AI Behaviour
               </p>
             </div>
@@ -245,7 +237,7 @@ export const CompanionForm = ({
                   <Textarea
                     disabled={isLoading}
                     rows={7}
-                    className="resize-none bg-background"
+                    className="bg-background resize-none"
                     placeholder={PREAMBLE}
                     {...field}
                   />
@@ -268,7 +260,7 @@ export const CompanionForm = ({
                   <Textarea
                     disabled={isLoading}
                     rows={7}
-                    className="resize-none bg-background"
+                    className="bg-background resize-none"
                     placeholder={SEED_CHAT}
                     {...field}
                   />

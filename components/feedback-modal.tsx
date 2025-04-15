@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/hooks/use-modal";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { MAX_CHAT_MESSAGE_LENGTH, FEEDBACK_MODAL } from "@/constants";
 
 const FormSchema = z.object({
@@ -42,7 +42,6 @@ type FeedbackFormValues = z.infer<typeof FormSchema>;
 export const FeedbackModal = () => {
   const modal = useModal(FEEDBACK_MODAL);
   const [isMounted, setIsMounted] = useState(false);
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FeedbackFormValues>({
@@ -65,14 +64,11 @@ export const FeedbackModal = () => {
 
       if (!res.ok) throw new Error("Failed to send feedback");
 
-      toast({ description: "Thank you for your feedback!" });
+      toast("Thank you for your feedback!");
       form.reset();
       modal.onClose();
     } catch (err) {
-      toast({
-        description: "Sorry, something went wrong. I'm working to fix it.",
-        variant: "destructive",
-      });
+      toast("Sorry, something went wrong. I'm working to fix it.");
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +97,7 @@ export const FeedbackModal = () => {
                   <FormControl>
                     <Textarea
                       placeholder="Type your feedback"
-                      className="min-h-[120px] resize-none rounded-lg bg-primary/10"
+                      className="bg-primary/10 min-h-[120px] resize-none rounded-lg"
                       disabled={isLoading}
                       {...field}
                     />
