@@ -35,7 +35,7 @@ export const Navbar = () => {
         </Link>
       </div>
       <div className="flex items-center gap-x-3">
-        <Button onClick={feedbackModal.onOpen} size="sm">
+        <Button onClick={feedbackModal.onOpen}>
           Feedback
         </Button>
         {!isPro && <OpenProModalButton />}

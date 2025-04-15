@@ -8,7 +8,7 @@ import { useModal } from "@/hooks/use-modal";
 import { PRO_MODAL } from "@/constants";
 import { useIsPro } from "@/store/useSubscriptionStore";
 
-export const Sidebar = () => {
+export const Sidebar = ({ hideMobileSidebar }: { hideMobileSidebar?: () => void }) => {
   const isPro = useIsPro();
   const proModal = useModal(PRO_MODAL);
   const router = useRouter();
@@ -19,7 +19,9 @@ export const Sidebar = () => {
       return proModal.onOpen();
     }
 
-    return router.push(url);
+    router.push(url);
+    
+    hideMobileSidebar?.();
   };
 
   const routes = [
