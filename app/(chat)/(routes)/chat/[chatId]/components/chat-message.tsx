@@ -13,6 +13,7 @@ export interface ChatMessageProps {
   role: "system" | "user";
   content?: string;
   isLoading?: boolean;
+  isLast?: boolean;
   src?: string;
   id?: string;
 }
@@ -21,6 +22,7 @@ export const ChatMessage = ({
   role,
   content,
   isLoading,
+  isLast,
   src,
 }: ChatMessageProps) => {
   const { theme } = useTheme();
@@ -36,6 +38,7 @@ export const ChatMessage = ({
 
   return (
     <div
+      style={isLast ? { minHeight: "calc(-180px + 100dvh)" } : {}}
       className={cn(
         "group flex w-full items-start gap-x-3 py-4",
         role === "user" && "justify-end",

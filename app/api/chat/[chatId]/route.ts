@@ -1,4 +1,4 @@
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -131,40 +131,43 @@ export async function POST(
       return;
     }
 
-    const { text } = await generateText({
+    const stream = streamText({
       model: openai.chat(model),
       prompt: promptTemplate,
     });
 
-    await memoryManager.writeToHistory(
-      `${companion.name}: ${text}\n`,
-      companionKey,
-    );
+    (async () => {
+      let fullText = "";
+      for await (const delta of stream.textStream) {
+        fullText += delta;
+      }
 
-    await prismadb.companion.update({
-      where: {
-        id: params.chatId,
-      },
-      data: {
-        messages: {
-          create: {
-            content: text,
-            role: "system",
-            userId: userId,
+      await memoryManager.writeToHistory(
+        `${companion.name}: ${fullText}\n`,
+        companionKey,
+      );
+
+      await prismadb.companion.update({
+        where: {
+          id: params.chatId,
+        },
+        data: {
+          messages: {
+            create: {
+              content: fullText,
+              role: "system",
+              userId: userId,
+            },
           },
         },
-      },
-    });
+      });
+    })();
 
     if (!isPro) {
-      await decreaseAiRequestsCount();
+      decreaseAiRequestsCount();
     }
 
-    return new NextResponse(text, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-      },
-    });
+    return stream.toTextStreamResponse();
   } catch (error) {
     return new NextResponse("Internal Error", { status: 500 });
   }

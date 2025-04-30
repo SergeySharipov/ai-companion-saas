@@ -1,10 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import axios from "axios";
 import { Companion, Message } from "@prisma/client";
-import { useRouter } from "next/navigation";
-
 import { ChatForm } from "./chat-form";
 import { ChatHeader } from "./chat-header";
 import { ChatMessages } from "./chat-messages";
@@ -17,8 +14,40 @@ interface ChatClientProps {
   };
 }
 
+async function fetchStreamedResponse(
+  companion: Companion,
+  prompt: string,
+  onChunk: (text: string) => void,
+) {
+  const response = await fetch(`/api/chat/${companion.id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+
+  const reader = response.body?.getReader();
+
+  if (!reader) return;
+
+  const decoder = new TextDecoder();
+  let done = false;
+
+  while (!done) {
+    const { value, done: readerDone } = await reader.read();
+    done = readerDone;
+    if (value) {
+      const chunk = decoder.decode(value, { stream: true });
+      onChunk(chunk);
+    }
+  }
+}
+
 export const ChatClient = ({ companion }: ChatClientProps) => {
-  const router = useRouter();
   const [messages, setMessages] = useState<ChatMessageProps[]>(
     companion.messages,
   );
@@ -40,34 +69,35 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
     const userMessage: ChatMessageProps = {
       role: "user",
       content: input,
-      id: "user-" + new Date().toISOString(),
+      id: "new-user-message-" + messages.length,
     };
 
     const systemMessage: ChatMessageProps = {
       role: "system",
       content: "",
       isLoading: true,
-      id: "system-" + new Date().toISOString(),
+      id: "new-system-message-" + messages.length,
     };
 
     setMessages((prev) => [...prev, userMessage, systemMessage]);
     setIsLoading(true);
 
-    try {
-      const response = await axios.post(`/api/chat/${companion.id}`, {
-        prompt: input,
-      });
-      const text = response.data;
+    let accumulatedText = "";
 
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === systemMessage.id
-            ? { ...msg, content: text, isLoading: false }
-            : msg,
-        ),
-      );
+    try {
+      await fetchStreamedResponse(companion, input, (chunk) => {
+        accumulatedText += chunk;
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === systemMessage.id
+              ? { ...msg, content: accumulatedText, isLoading: false }
+              : msg,
+          ),
+        );
+      });
+
       setInput("");
-      //router.refresh();
     } catch (error: any) {
       setMessages((prev) => prev.filter((msg) => msg.id !== systemMessage.id));
 
