@@ -70,7 +70,14 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
       //router.refresh();
     } catch (error: any) {
       setMessages((prev) => prev.filter((msg) => msg.id !== systemMessage.id));
-      toast(error.response?.data || "An error occurred");
+
+      if (error.status == "402") {
+        toast(
+          "You exceeded your current quota, please subscribe to chat more.",
+        );
+      } else {
+        toast("An error occurred");
+      }
     } finally {
       setIsLoading(false);
     }

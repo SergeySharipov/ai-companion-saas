@@ -29,7 +29,7 @@ export async function POST(
     const { success } = await rateLimit(identifier);
 
     if (!success) {
-      return new NextResponse("Rate limit exceeded", { status: 429 });
+      return new NextResponse("Payment Required", { status: 402 });
     }
 
     const isPro = await checkSubscription();
