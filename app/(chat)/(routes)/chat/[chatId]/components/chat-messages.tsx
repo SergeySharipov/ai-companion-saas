@@ -43,15 +43,19 @@ export const ChatMessages = ({
         role="system"
         content={`Hello, I am ${companion.name}, ${companion.description}`}
       />
-      {messages.map((message) => (
-        <ChatMessage
-          key={message.id}
-          src={companion.src}
-          content={message.content}
-          role={message.role}
-          isLoading={message.isLoading}
-        />
-      ))}
+      {messages.map((message, index) => {
+        const isLast = index === messages.length - 1;
+        return (
+          <ChatMessage
+            key={message.id}
+            src={companion.src}
+            content={message.content}
+            role={message.role}
+            isLoading={message.isLoading}
+            isLast={isLast}
+          />
+        );
+      })}
       <div ref={scrollRef} />
     </div>
   );
