@@ -32,7 +32,9 @@ export const ChatMessages = ({
   }, []);
 
   useEffect(() => {
-    scrollRef?.current?.scrollIntoView({ behavior: "smooth" });
+    if (isLoading) {
+      scrollRef?.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   return (
