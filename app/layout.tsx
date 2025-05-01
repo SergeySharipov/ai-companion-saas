@@ -10,7 +10,7 @@ import { FeedbackModal } from "@/components/feedback-modal";
 
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Companion.AI",
@@ -25,21 +25,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider afterSignOutUrl="/sign-in">
-      <html lang="en" suppressHydrationWarning>
-        <body className={cn("bg-secondary", inter.className)}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn("bg-secondary", inter.className)}>
+        <ClerkProvider afterSignOutUrl="/sign-in">
           <SignedOut>
             <RedirectToSignIn />
           </SignedOut>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <FeedbackModal />
             <ProModal />
             {children}
             <Toaster />
           </ThemeProvider>
-        </body>
+        </ClerkProvider>
         {googleAnalyticsId && <GoogleAnalytics gaId={googleAnalyticsId} />}
-      </html>
-    </ClerkProvider>
+      </body>
+    </html>
   );
 }
