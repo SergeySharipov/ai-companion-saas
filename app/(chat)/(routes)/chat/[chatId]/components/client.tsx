@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Companion, Message } from "@prisma/client";
 import { ChatForm } from "./chat-form";
 import { ChatHeader } from "./chat-header";
 import { ChatMessages } from "./chat-messages";
 import { ChatMessageProps } from "./chat-message";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ChatClientProps {
   companion: Companion & {
@@ -15,39 +16,46 @@ interface ChatClientProps {
 }
 
 async function fetchStreamedResponse(
+  sourceRef: any,
+  refresh: () => void,
   companion: Companion,
   prompt: string,
   onChunk: (text: string) => void,
 ) {
-  const response = await fetch(`/api/chat/${companion.id}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  });
+  sourceRef.current = new EventSource(
+    `/api/chat/${companion.id}?prompt=${encodeURIComponent(prompt)}`,
+  );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
-
-  const reader = response.body?.getReader();
-
-  if (!reader) return;
-
-  const decoder = new TextDecoder();
-  let done = false;
-
-  while (!done) {
-    const { value, done: readerDone } = await reader.read();
-    done = readerDone;
-    if (value) {
-      const chunk = decoder.decode(value, { stream: true });
-      onChunk(chunk);
+  sourceRef.current.onmessage = (event: { data: string }) => {
+    const data = JSON.parse(event.data);
+    if (data.isChunk) {
+      onChunk(data.chunk);
+    } else if (data.savedToDB) {
+      refresh();
     }
-  }
+  };
+
+  sourceRef.current.onerror = (err: any) => {
+    console.error("SSE error:", err);
+    sourceRef.current.close();
+  };
+
+  return () => {
+    sourceRef.current?.close();
+  };
 }
 
 export const ChatClient = ({ companion }: ChatClientProps) => {
+  const router = useRouter();
+  const refresh = () => router.refresh();
+
+  const sourceRef = useRef<EventSource | null>(null);
+  useEffect(() => {
+    return () => {
+      sourceRef.current?.close();
+    };
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessageProps[]>(
     companion.messages,
   );
@@ -85,7 +93,7 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
     let accumulatedText = "";
 
     try {
-      await fetchStreamedResponse(companion, input, (chunk) => {
+      await fetchStreamedResponse(sourceRef, refresh, companion, input, (chunk) => {
         accumulatedText += chunk;
 
         setMessages((prev) =>

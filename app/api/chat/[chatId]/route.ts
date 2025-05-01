@@ -12,15 +12,20 @@ import {
 } from "@/lib/user-settings";
 import { checkSubscription } from "@/lib/subscription";
 
-export async function POST(
+export async function GET(
   request: Request,
   props: { params: Promise<{ chatId: string }> },
 ) {
   const params = await props.params;
-  try {
-    const { prompt } = await request.json();
-    const { userId } = await auth();
+  const { searchParams } = new URL(request.url);
 
+  try {
+    const prompt = searchParams.get("prompt");
+    if (!prompt) {
+      return new NextResponse("Prompt not found", { status: 501 });
+    }
+
+    const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -28,7 +33,7 @@ export async function POST(
     const identifier = request.url + "-" + userId;
     const { success } = await rateLimit(identifier);
 
-    if (success) {
+    if (!success) {
       return new NextResponse("Payment Required", { status: 402 });
     }
 
@@ -131,19 +136,40 @@ export async function POST(
       return;
     }
 
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+
+    const encoder = new TextEncoder();
+
+    const send = (data: any) => {
+      writer.write(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+    };
+
+    // Send a ping every 10s to keep the connection alive
+    const keepAlive = setInterval(() => {
+      writer.write(encoder.encode(`: keep-alive\n\n`));
+    }, 10000);
+
+    request.signal.addEventListener("abort", () => {
+      clearInterval(keepAlive);
+      writer.close();
+    });
+
     const stream = streamText({
       model: openai.chat(model),
       prompt: promptTemplate,
     });
 
     (async () => {
-      let fullText = "";
-      for await (const delta of stream.textStream) {
-        fullText += delta;
+      let accumulatedText = "";
+
+      for await (const chunk of stream.textStream) {
+        send({ chunk: chunk, isChunk: true });
+        accumulatedText += chunk;
       }
 
       await memoryManager.writeToHistory(
-        `${companion.name}: ${fullText}\n`,
+        `${companion.name}: ${accumulatedText}\n`,
         companionKey,
       );
 
@@ -154,20 +180,28 @@ export async function POST(
         data: {
           messages: {
             create: {
-              content: fullText,
+              content: accumulatedText,
               role: "system",
               userId: userId,
             },
           },
         },
       });
+
+      send({ savedToDB: true });
     })();
 
     if (!isPro) {
       decreaseAiRequestsCount();
     }
 
-    return stream.toTextStreamResponse();
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
   } catch (error) {
     return new NextResponse("Internal Error", { status: 500 });
   }
