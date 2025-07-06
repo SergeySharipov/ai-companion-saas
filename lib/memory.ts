@@ -16,7 +16,8 @@ export class MemoryManager {
   public constructor() {
     this.history = Redis.fromEnv();
     this.vectorDBClient = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY!,});
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
   }
 
   public async vectorSearch(
@@ -25,14 +26,15 @@ export class MemoryManager {
   ) {
     const Pinecone = <Pinecone>this.vectorDBClient;
 
-    const pineconeIndex = Pinecone.Index(
-      process.env.PINECONE_INDEX! || "",
-    );
+    const pineconeIndex = Pinecone.Index(process.env.PINECONE_INDEX! || "");
 
     const vectorStore = await PineconeStore.fromExistingIndex(
       new OpenAIEmbeddings({
-        openAIApiKey: process.env.OPENAI_API_KEY,
         modelName: process.env.OPENAI_API_EMBEDDINGS_MODEL_NAME,
+        configuration: {
+          apiKey: process.env.OPENAI_API_KEY,
+          baseURL: process.env.OPENAI_API_BASE,
+        },
       }),
       { pineconeIndex },
     );

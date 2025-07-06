@@ -11,6 +11,7 @@ import {
   decreaseAiRequestsCount,
 } from "@/lib/user-settings";
 import { checkSubscription } from "@/lib/subscription";
+import { log } from "console";
 
 export async function POST(
   request: Request,
@@ -123,6 +124,7 @@ export async function POST(
 
     const openai = createOpenAI({
       apiKey: process.env.OPENAI_API_KEY,
+      baseURL: process.env.OPENAI_API_BASE,
     });
 
     const model = process.env.OPENAI_API_MODEL_NAME;
@@ -166,6 +168,7 @@ export async function POST(
       },
     });
   } catch (error) {
+    console.log("Error in chat route:", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

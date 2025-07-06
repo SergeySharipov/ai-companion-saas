@@ -76,6 +76,7 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
           "You exceeded your current quota, please subscribe to chat more.",
         );
       } else {
+        console.error("Error sending message:", error);
         toast("An error occurred");
       }
     } finally {
